@@ -6,17 +6,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# 替换为阿里云 Debian 镜像（兼容新旧两种 sources 格式）
-RUN if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
-        sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources; \
-        sed -i 's|http://security.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources; \
-    elif [ -f /etc/apt/sources.list ]; then \
-        sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list; \
-        sed -i 's|http://security.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list; \
-    fi
+# 写入阿里云镜像源（直接覆盖，避免 sed 兼容性问题）
+RUN echo "Types: deb\nURIs: http://mirrors.aliyun.com/debian\nSuites: trixie trixie-updates\nComponents: main\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg" \
+    > /etc/apt/sources.list.d/debian.sources \
+    && echo "Types: deb\nURIs: http://mirrors.aliyun.com/debian-security\nSuites: trixie-security\nComponents: main\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg" \
+    >> /etc/apt/sources.list.d/debian.sources
 
 # 安装系统依赖：poppler-utils（pdf2image 降级处理加密 PDF 时需要）
-RUN apt-get update \
+# 禁用 Post-Invoke 钩子避免清理脚本报错
+RUN rm -f /etc/apt/apt.conf.d/docker-clean \
+    && apt-get update \
     && apt-get install -y --no-install-recommends poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
