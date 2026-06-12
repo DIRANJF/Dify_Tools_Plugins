@@ -9,9 +9,9 @@ WORKDIR /app
 # poppler-utils 为可选依赖（加密 PDF 降级用），跳过安装以加速构建
 # 如需启用，在服务器上手动执行：docker exec -it dify-tools apt-get update && apt-get install -y poppler-utils
 
-# pip 使用阿里云镜像加速
+# pip 安装依赖（使用官方 PyPI，避免镜像同步问题）
 COPY requirements.txt .
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
