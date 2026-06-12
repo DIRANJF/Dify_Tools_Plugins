@@ -1,4 +1,5 @@
-import asyncio
+import sys
+import traceback
 from main import app
 
 try:
@@ -11,8 +12,12 @@ try:
             port=8502,
             limit_concurrency=100,
             access_log=False,
+            log_level="info",
         )
         server = uvicorn.Server(config)
         server.run()
-except ImportError:
-    print("uvicorn not installed, please install requirements.txt first")
+except Exception as e:
+    print(f"[FATAL] Server crashed with exception: {type(e).__name__}: {e}", flush=True)
+    print(f"[FATAL] Traceback:", flush=True)
+    traceback.print_exc(file=sys.stdout)
+    sys.exit(1)

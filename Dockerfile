@@ -10,12 +10,8 @@ WORKDIR /app
 # 如需启用，在服务器上手动执行：docker exec -it dify-tools apt-get update && apt-get install -y poppler-utils
 
 COPY requirements.txt .
-# 先升级pip，同时关闭进度条
-RUN pip3 install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com --progress-bar off
-# 再安装业务依赖
-RUN pip3 install --no-cache-dir --prefer-binary -r requirements.txt \
--i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com \
---progress-bar off
+RUN pip3 install --no-cache-dir --upgrade pip --progress-bar off \
+ && pip3 install --no-cache-dir --prefer-binary --progress-bar off -r requirements.txt
 
 COPY . .
 
