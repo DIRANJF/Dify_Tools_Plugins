@@ -6,10 +6,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# 尝试安装 poppler-utils（加密 PDF 降级用，非必需，失败则跳过）
-RUN apt-get update \
-    && apt-get install -y poppler-utils || echo "poppler-utils 安装失败，跳过" \
-    && rm -rf /var/lib/apt/lists/*
+# poppler-utils 为可选依赖（加密 PDF 降级用），跳过安装以加速构建
+# 如需启用，在服务器上手动执行：docker exec -it dify-tools apt-get update && apt-get install -y poppler-utils
 
 # pip 使用阿里云镜像加速
 COPY requirements.txt .
