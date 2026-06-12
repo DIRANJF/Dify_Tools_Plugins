@@ -7,16 +7,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # 写入阿里云镜像源（直接覆盖，避免 sed 兼容性问题）
-RUN echo "Types: deb\nURIs: http://mirrors.aliyun.com/debian\nSuites: trixie trixie-updates\nComponents: main\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg" \
+RUN echo "Types: deb\nURIs: http://mirrors.aliyun.com/debian\nSuites: trixie trixie-updates\nComponents: main contrib\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg" \
     > /etc/apt/sources.list.d/debian.sources \
-    && echo "Types: deb\nURIs: http://mirrors.aliyun.com/debian-security\nSuites: trixie-security\nComponents: main\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg" \
+    && echo "Types: deb\nURIs: http://mirrors.aliyun.com/debian-security\nSuites: trixie-security\nComponents: main contrib\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg" \
     >> /etc/apt/sources.list.d/debian.sources
 
 # 安装系统依赖：poppler-utils（pdf2image 降级处理加密 PDF 时需要）
 # 禁用 Post-Invoke 钩子避免清理脚本报错
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && apt-get update \
-    && apt-get install -y --no-install-recommends poppler-utils \
+    && apt-get install -y poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # pip 使用阿里云镜像
