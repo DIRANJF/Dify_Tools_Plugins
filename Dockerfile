@@ -9,10 +9,10 @@ WORKDIR /app
 # poppler-utils 为可选依赖（加密 PDF 降级用），跳过安装以加速构建
 # 如需启用，在服务器上手动执行：docker exec -it dify-tools apt-get update && apt-get install -y poppler-utils
 
-# 先升级 pip，再安装依赖
+# 先升级 pip，再安装依赖（禁用进度条避免线程问题）
 COPY requirements.txt .
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+    && PIP_NO_PROGRESS_BAR=1 pip install --no-cache-dir --progress-bar=off -r requirements.txt
 
 COPY . .
 
