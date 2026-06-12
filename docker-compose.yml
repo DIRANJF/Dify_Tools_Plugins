@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   dify-tools:
     build: .
@@ -11,11 +9,6 @@ services:
     networks:
       tools-net:
         ipv4_address: 172.25.0.10
-    ulimits:
-      nproc: 65535
-      nofile:
-        soft: 65535
-        hard: 65535
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
