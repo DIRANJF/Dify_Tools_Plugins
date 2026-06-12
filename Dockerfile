@@ -19,7 +19,6 @@ RUN pip3 install --no-cache-dir --prefer-binary -r requirements.txt \
 
 COPY . .
 
-# 清理可能从宿主机带入的 Windows __pycache__
 RUN find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 EXPOSE 8502
@@ -27,4 +26,4 @@ EXPOSE 8502
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8502/health')" || exit 1
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8502", "--workers", "1"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8502"]

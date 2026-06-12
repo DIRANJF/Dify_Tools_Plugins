@@ -16,6 +16,7 @@ services:
       nofile:
         soft: 65535
         hard: 65535
+    pids_limit: 65535
     restart: unless-stopped
     deploy:
       resources:
