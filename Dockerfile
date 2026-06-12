@@ -6,29 +6,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# 写入阿里云镜像源（使用 heredoc 确保格式正确）
-RUN cat > /etc/apt/sources.list.d/debian.sources << 'EOF'
-Types: deb
-URIs: http://mirrors.aliyun.com/debian
-Suites: trixie trixie-updates
-Components: main contrib
-Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
-
-Types: deb
-URIs: http://mirrors.aliyun.com/debian-security
-Suites: trixie-security
-Components: main contrib
-Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
-EOF
-
-# 安装系统依赖：poppler-utils（pdf2image 降级处理加密 PDF 时需要）
-# 禁用 Post-Invoke 钩子避免清理脚本报错
-RUN rm -f /etc/apt/apt.conf.d/docker-clean \
-    && apt-get update \
-    && apt-get install -y poppler-utils \
+# 尝试安装 poppler-utils（加密 PDF 降级用，非必需，失败则跳过）
+RUN apt-get update \
+    && apt-get install -y poppler-utils || echo "poppler-utils 安装失败，跳过" \
     && rm -rf /var/lib/apt/lists/*
 
-# pip 使用阿里云镜像
+# pip 使用阿里云镜像加速
 COPY requirements.txt .
 RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r requirements.txt
 
