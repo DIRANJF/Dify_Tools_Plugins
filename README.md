@@ -64,7 +64,7 @@ docker compose up -d --build
 
 ```bash
 pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 5000 --reload
+uvicorn main:app --host 0.0.0.0 --port 8502 --reload
 ```
 
 ## 新增工具（3 步完成）

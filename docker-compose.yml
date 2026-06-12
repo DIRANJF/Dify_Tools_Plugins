@@ -5,7 +5,7 @@ services:
     build: .
     container_name: dify-tools
     ports:
-      - "5000:5000"
+      - "8502:8502"
     volumes:
       # 挂载 plugins 目录，新增插件无需重新构建镜像，重启即可生效
       - ./plugins:/app/plugins
