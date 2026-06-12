@@ -6,11 +6,20 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# 写入阿里云镜像源（使用 printf 正确解析换行符）
-RUN printf "Types: deb\nURIs: http://mirrors.aliyun.com/debian\nSuites: trixie trixie-updates\nComponents: main contrib\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg\n" \
-    > /etc/apt/sources.list.d/debian.sources \
-    && printf "Types: deb\nURIs: http://mirrors.aliyun.com/debian-security\nSuites: trixie-security\nComponents: main contrib\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg\n" \
-    >> /etc/apt/sources.list.d/debian.sources
+# 写入阿里云镜像源（使用 heredoc 确保格式正确）
+RUN cat > /etc/apt/sources.list.d/debian.sources << 'EOF'
+Types: deb
+URIs: http://mirrors.aliyun.com/debian
+Suites: trixie trixie-updates
+Components: main contrib
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+Types: deb
+URIs: http://mirrors.aliyun.com/debian-security
+Suites: trixie-security
+Components: main contrib
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+EOF
 
 # 安装系统依赖：poppler-utils（pdf2image 降级处理加密 PDF 时需要）
 # 禁用 Post-Invoke 钩子避免清理脚本报错
