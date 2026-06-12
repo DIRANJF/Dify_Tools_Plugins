@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  dify-tools:
+    build: .
+    container_name: dify-tools
+    ports:
+      - "5000:5000"
+    volumes:
+      # 挂载 plugins 目录，新增插件无需重新构建镜像，重启即可生效
+      - ./plugins:/app/plugins
+    networks:
+      tools-net:
+        ipv4_address: 172.25.0.10
+    restart: unless-stopped
+
+networks:
+  tools-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16

@@ -1,0 +1,8 @@
+{
+  "name": "Excel 文件合并工具",
+  "version": "1.0.0",
+  "description": "根据模板表头将源数据填充生成新 Excel 文件，支持自动合计计算",
+  "prefix": "/api/v1/excel/merge",
+  "author": "your-name",
+  "tags": ["excel", "数据合并", "表格操作"]
+}

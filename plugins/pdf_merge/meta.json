@@ -1,0 +1,8 @@
+{
+  "name": "PDF 文件合并工具",
+  "version": "1.0.0",
+  "description": "将多个 PDF 和图片合并为一个 PDF 文件，支持 URL 下载模式和文件上传模式，加密 PDF 自动降级处理",
+  "prefix": "/api/v1/pdf/merge",
+  "author": "your-name",
+  "tags": ["pdf", "合并", "图片转PDF"]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "示例工具（复制此目录创建新插件）",
+  "version": "0.1.0",
+  "description": "这是一个示例插件，展示如何创建新工具。复制此目录并重命名。",
+  "prefix": "/api/v1/your-tool-name",
+  "author": "your-name",
+  "tags": ["示例"]
+}

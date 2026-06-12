@@ -1,0 +1,174 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Excel 文件合并工具",
+    "description": "根据模板表头将源数据填充生成新 Excel 文件，支持自动合计计算",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://your-server-address:5000",
+      "description": "部署服务地址（请替换为实际地址）"
+    }
+  ],
+  "paths": {
+    "/api/v1/excel/merge": {
+      "post": {
+        "operationId": "mergeExcelFiles",
+        "summary": "合并两个 Excel 文件（返回文件下载）",
+        "description": "通过两个文件 URL 获取 Excel 文件，将文件2的数据按照字段映射关系填充到文件1的表头模板下，自动生成合计行，返回合并后的新 Excel 文件。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "合并后的 Excel 文件",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/excel/merge/base64": {
+      "post": {
+        "operationId": "mergeExcelFilesBase64",
+        "summary": "合并两个 Excel 文件（返回 Base64）",
+        "description": "通过两个文件 URL 获取 Excel 文件，将文件2的数据按照字段映射关系填充到文件1的表头模板下，自动生成合计行，返回 Base64 编码的合并文件。适用于工作流中需要 JSON 格式输出的场景。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "合并成功，返回 Base64 编码的文件",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MergeBase64Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MergeRequest": {
+        "type": "object",
+        "required": ["file1_url", "file2_url"],
+        "properties": {
+          "file1_url": {
+            "type": "string",
+            "description": "模板 Excel 文件的下载 URL。该文件的前两行为表头，用于定义输出文件的列结构。",
+            "example": "https://example.com/template.xlsx"
+          },
+          "file2_url": {
+            "type": "string",
+            "description": "数据源 Excel 文件的下载 URL。该文件包含需要填充的数据，第一行为字段名。",
+            "example": "https://example.com/data_source.xlsx"
+          }
+        }
+      },
+      "MergeBase64Response": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string",
+            "description": "生成的文件名",
+            "example": "merged_output.xlsx"
+          },
+          "file_base64": {
+            "type": "string",
+            "description": "合并后 Excel 文件的 Base64 编码内容"
+          },
+          "file_size": {
+            "type": "integer",
+            "description": "文件大小（字节）",
+            "example": 15360
+          },
+          "message": {
+            "type": "string",
+            "description": "操作结果消息",
+            "example": "合并成功"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "错误信息",
+            "example": "缺少 file1_url 参数"
+          },
+          "code": {
+            "type": "integer",
+            "description": "错误码",
+            "example": 400
+          }
+        }
+      }
+    }
+  }
+}

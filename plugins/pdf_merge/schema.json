@@ -1,0 +1,177 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PDF 文件合并工具",
+    "description": "将多个 PDF 和图片合并为一个 PDF 文件。支持通过 URL 传入文件，也支持直接上传文件。加密或损坏的 PDF 会自动降级为图片后合并。",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://your-server-address:5000",
+      "description": "部署服务地址（请替换为实际地址）"
+    }
+  ],
+  "paths": {
+    "/api/v1/pdf/merge/by-url": {
+      "post": {
+        "operationId": "mergePdfByUrl",
+        "summary": "通过 URL 合并文件（返回文件下载）",
+        "description": "传入多个文件的下载 URL，自动下载并合并为一个 PDF。支持 PDF 和图片（PNG/JPG/BMP/TIFF/GIF/WebP）混合输入。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeByUrlRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "合并后的 PDF 文件",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pdf/merge/by-url/base64": {
+      "post": {
+        "operationId": "mergePdfByUrlBase64",
+        "summary": "通过 URL 合并文件（返回 Base64）",
+        "description": "传入多个文件的下载 URL，自动下载并合并为一个 PDF，返回 Base64 编码结果。适用于 Dify 工作流中需要 JSON 格式输出的场景。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeByUrlRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "合并成功，返回 Base64 编码的文件",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MergeBase64Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MergeByUrlRequest": {
+        "type": "object",
+        "required": ["file_urls"],
+        "properties": {
+          "file_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "文件下载 URL 列表。支持 PDF 和图片（PNG/JPG/BMP/TIFF/GIF/WebP）。文件按列表顺序合并。",
+            "minItems": 1,
+            "example": [
+              "https://example.com/file1.pdf",
+              "https://example.com/image1.png",
+              "https://example.com/file2.pdf"
+            ]
+          }
+        }
+      },
+      "MergeBase64Response": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string",
+            "description": "生成的文件名",
+            "example": "merged.pdf"
+          },
+          "file_base64": {
+            "type": "string",
+            "description": "合并后 PDF 文件的 Base64 编码内容"
+          },
+          "file_size": {
+            "type": "integer",
+            "description": "文件大小（字节）",
+            "example": 102400
+          },
+          "page_count": {
+            "type": "integer",
+            "description": "合并后的 PDF 页数",
+            "example": 5
+          },
+          "message": {
+            "type": "string",
+            "description": "操作结果消息",
+            "example": "合并成功"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "错误信息",
+            "example": "不支持的文件类型: file.txt"
+          }
+        }
+      }
+    }
+  }
+}
