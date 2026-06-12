@@ -12,11 +12,11 @@ WORKDIR /app
 # ---- 逐个安装依赖，降低单次 pip 的线程占用 ----
 # 基础框架
 COPY requirements.txt .
-RUN pip install --no-cache-dir --prefer-binary fastapi uvicorn[standard] python-multipart pydantic requests \
- && pip install --no-cache-dir --prefer-binary openpyxl \
- && pip install --no-cache-dir --prefer-binary pypdf \
- && pip install --no-cache-dir --prefer-binary Pillow \
- && pip install --no-cache-dir --prefer-binary pdf2image
+RUN pip3 install --no-cache-dir --prefer-binary fastapi uvicorn[standard] python-multipart pydantic requests \
+ && pip3 install --no-cache-dir --prefer-binary openpyxl \
+ && pip3 install --no-cache-dir --prefer-binary pypdf \
+ && pip3 install --no-cache-dir --prefer-binary Pillow \
+ && pip3 install --no-cache-dir --prefer-binary pdf2image
 
 COPY . .
 
