@@ -16,9 +16,9 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    pids_limit: 65535
-    mem_limit: 2g
-    cpus: 2.0
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
     restart: unless-stopped
 
 networks:
