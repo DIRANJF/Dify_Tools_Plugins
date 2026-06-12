@@ -7,6 +7,7 @@ Dify 工具集 — 插件式服务主入口
 import os
 import sys
 import json
+import shutil
 import importlib
 import logging
 from pathlib import Path
@@ -24,6 +25,19 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger("dify-tools")
+
+# ---------------------------------------------------------------------------
+# 清理残留的 __pycache__（防止 Windows 编译的 .pyc 在 Linux 容器中出错）
+# ---------------------------------------------------------------------------
+def _clean_pycache(root: Path):
+    for pycache in root.rglob("__pycache__"):
+        try:
+            shutil.rmtree(pycache)
+            logger.debug(f"已清理: {pycache}")
+        except Exception:
+            pass
+
+_clean_pycache(Path(__file__).parent)
 
 # ---------------------------------------------------------------------------
 # 应用初始化
@@ -46,6 +60,7 @@ app.add_middleware(
 # 插件注册表（运行时信息）
 # ---------------------------------------------------------------------------
 PLUGIN_REGISTRY: dict[str, dict] = {}
+PLUGIN_ERRORS: dict[str, str] = {}  # 记录加载失败的插件及原因
 
 PLUGINS_DIR = Path(__file__).parent / "plugins"
 
@@ -61,6 +76,9 @@ def load_plugins():
     if not PLUGINS_DIR.exists():
         logger.warning(f"插件目录不存在: {PLUGINS_DIR}")
         return
+
+    # 清除 importlib 缓存，避免旧字节码干扰
+    importlib.invalidate_caches()
 
     for item in sorted(PLUGINS_DIR.iterdir()):
         # 跳过非目录、隐藏目录、__pycache__
@@ -89,7 +107,9 @@ def load_plugins():
 
             # 获取 router 对象
             if not hasattr(module, "router"):
-                logger.error(f"插件 {plugin_name}: router.py 缺少 'router' 变量")
+                err = "router.py 缺少 'router' 变量"
+                logger.error(f"插件 {plugin_name}: {err}")
+                PLUGIN_ERRORS[item.name] = err
                 continue
 
             router = module.router
@@ -113,7 +133,11 @@ def load_plugins():
             logger.info(f"[已加载] {plugin_name} v{meta.get('version', '?')} → {plugin_prefix}")
 
         except Exception as e:
-            logger.error(f"加载插件 {item.name} 失败: {e}", exc_info=True)
+            err_msg = f"{type(e).__name__}: {e}"
+            logger.error(f"[加载失败] {item.name}: {err_msg}", exc_info=True)
+            PLUGIN_ERRORS[item.name] = err_msg
+
+    logger.info(f"插件加载完成: 成功 {len(PLUGIN_REGISTRY)}, 失败 {len(PLUGIN_ERRORS)}")
 
 
 # 启动时加载所有插件
@@ -127,7 +151,14 @@ load_plugins()
 @app.get("/health")
 async def health_check():
     """健康检查"""
-    return {"status": "ok", "plugins_loaded": len(PLUGIN_REGISTRY)}
+    result = {
+        "status": "ok" if not PLUGIN_ERRORS else "degraded",
+        "plugins_loaded": len(PLUGIN_REGISTRY),
+        "plugins": list(PLUGIN_REGISTRY.keys()),
+    }
+    if PLUGIN_ERRORS:
+        result["plugin_errors"] = PLUGIN_ERRORS
+    return result
 
 
 @app.get("/api/v1/tools")

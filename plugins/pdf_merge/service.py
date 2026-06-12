@@ -222,7 +222,9 @@ def merge_from_urls(
         # 下载所有文件
         file_list = []
         for i, url in enumerate(file_urls):
-            local_path = download_file(url, download_dir, filename=f"file_{i}")
+            # 从 URL 中提取原始文件名（保留扩展名）
+            url_filename = url.rsplit("/", 1)[-1].split("?")[0] or None
+            local_path = download_file(url, download_dir, filename=url_filename or f"file_{i}")
             if not is_allowed_file(local_path):
                 raise ValueError(f"不支持的文件类型: {os.path.basename(local_path)}")
             ftype = get_file_type(local_path)
