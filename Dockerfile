@@ -9,14 +9,8 @@ WORKDIR /app
 # poppler-utils 为可选依赖（加密 PDF 降级用），跳过安装以加速构建
 # 如需启用，在服务器上手动执行：docker exec -it dify-tools apt-get update && apt-get install -y poppler-utils
 
-# ---- 逐个安装依赖，降低单次 pip 的线程占用 ----
-# 基础框架
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir --prefer-binary fastapi uvicorn[standard] python-multipart pydantic requests \
- && pip3 install --no-cache-dir --prefer-binary openpyxl \
- && pip3 install --no-cache-dir --prefer-binary pypdf \
- && pip3 install --no-cache-dir --prefer-binary Pillow \
- && pip3 install --no-cache-dir --prefer-binary pdf2image
+RUN pip3 install --no-cache-dir --prefer-binary -r requirements.txt
 
 COPY . .
 
